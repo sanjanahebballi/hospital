@@ -1,4 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Healthcare Data Management System
+
+A comprehensive system for managing patient data between hospitals and NGOs. The system includes features for patient management, medication tracking, appointment scheduling, and automated notifications.
+
+## Features
+
+- 🏥 Hospital Staff Dashboard
+  - Patient management
+  - Medical records tracking
+  - Appointment scheduling
+  - Medication management
+
+- 👨‍⚕️ Patient Portal
+  - View medical history
+  - Schedule appointments
+  - Track medications
+  - Receive reminders
+
+- 📱 Smart Notifications
+  - Medication reminders
+  - Appointment alerts
+  - Follow-up checkup reminders
+  - SMS notifications
 
 ## Getting Started
 
