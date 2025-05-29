@@ -10,8 +10,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 enum UserRole {
@@ -64,7 +64,7 @@ model MedicalRecord {
   id            String    @id @default(cuid())
   diagnosis     String
   treatment     String
-  medications   String[]
+  medications   String    // Stored as JSON string
   notes         String?
   date          DateTime  @default(now())
   patient       Patient   @relation(fields: [patientId], references: [id])
@@ -80,7 +80,7 @@ model Medication {
   frequency       String
   startDate       DateTime
   endDate         DateTime?
-  reminderTime    DateTime[]
+  reminderTime    String     // Stored as JSON array of ISO strings
   lastTaken       DateTime?
   patient         Patient   @relation(fields: [patientId], references: [id])
   patientId       String
