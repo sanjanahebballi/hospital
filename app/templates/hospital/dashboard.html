@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hospital-dashboard">
+    <h1>Hospital Staff Dashboard</h1>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Total Patients</h3>
+            <p>{{ patients|length }}</p>
+        </div>
+    </div>
+
+    <div class="patient-list">
+        <h2>Patients</h2>
+        <a href="{{ url_for('hospital.add_patient') }}" class="btn btn-primary">Add New Patient</a>
+        
+        <table class="patient-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Gender</th>
+                    <th>Age</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.user.name }}</td>
+                    <td>{{ patient.id }}</td>
+                    <td>{{ patient.gender }}</td>
+                    <td>{{ patient.calculate_age() }}</td>
+                    <td>
+                        <a href="{{ url_for('hospital.view_patient', patient_id=patient.id) }}" class="btn btn-small">View</a>
+                        <a href="{{ url_for('hospital.edit_patient', patient_id=patient.id) }}" class="btn btn-small">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
