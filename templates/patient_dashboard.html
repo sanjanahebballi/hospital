@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-primary text-white mb-4" style="min-height: 300px;">
+                <h3 class="mb-3">Patient Info</h3>
+                <p><strong>{{ patient.name }}</strong></p>
+                <p>{{ patient.email }}</p>
+                <hr>
+                <p>Welcome to your health dashboard!</p>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card shadow p-4 mb-4">
+                <h4 class="mb-3">Your Details</h4>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="stat-card bg-gradient-info text-white mb-3">
+                            <h5>Disease</h5>
+                            <h3>{{ patient.disease }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card bg-gradient-success text-white mb-3">
+                            <h5>Hospital</h5>
+                            <h3>{{ patient.hospital }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="stat-card bg-gradient-warning text-dark mb-3">
+                            <h5>Last Visit</h5>
+                            <h3>{{ patient.last_visit.strftime('%Y-%m-%d') }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card bg-gradient-danger text-white mb-3">
+                            <h5>Next Visit</h5>
+                            <h3>{{ patient.next_visit.strftime('%Y-%m-%d') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-3 mt-3">
+                    <h5>Notice Period</h5>
+                    <p>{{ patient.notice_period }} days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Mark medication as taken
+    $('.mark-taken').click(function() {
+        const medId = $(this).data('med-id');
+        $.post('/medication/mark-taken/' + medId)
+            .done(function() {
+                location.reload();
+            })
+            .fail(function(err) {
+                alert('Error marking medication as taken');
+            });
+    });
+
+    // Show notification modal if there are unread notifications
+    {% if unread_notifications %}
+    $(document).ready(function() {
+        $('#notificationsModal').modal('show');
+    });
+    {% endif %}
+</script>
+{% endblock %}

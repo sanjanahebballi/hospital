@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Hospital Staff Dashboard</h2>
+            <p class="text-muted">Welcome, Dr. {{ current_user.name }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('add_patient') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Add New Patient
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Total Patients</h5>
+                    <p class="h3">{{ patients|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Medical Records</h5>
+                    <p class="h3">{{ medical_records|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5>Active Medications</h5>
+                    <p class="h3">{{ medication_stats.values()|sum(attribute='active_meds') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5>Avg. Compliance</h5>
+                    <p class="h3">
+                        {{ "%.1f"|format(medication_stats.values()|sum(attribute='compliance') / medication_stats|length if medication_stats else 0) }}%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient List -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Patient Records</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="patientsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Active Medications</th>
+                            <th>Compliance</th>
+                            <th>Last Visit</th>
+                            <th>Next Visit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.id }}</td>
+                            <td>{{ patient.user.name }}</td>
+                            <td>{{ medication_stats[patient.id].active_meds }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-{{ medication_stats[patient.id].compliance|compliance_color }}"
+                                         role="progressbar"
+                                         style="width: {{ medication_stats[patient.id].compliance }}%">
+                                        {{ "%.1f"|format(medication_stats[patient.id].compliance) }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% set last_record = patient.records.order_by(MedicalRecord.visit_date.desc()).first() %}
+                                {{ last_record.visit_date.strftime('%Y-%m-%d') if last_record else 'No visits' }}
+                            </td>
+                            <td>
+                                {% if last_record and last_record.next_visit %}
+                                {{ last_record.next_visit.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                Not scheduled
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addRecordModal{{ patient.id }}">
+                                        Add Record
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewDetailsModal{{ patient.id }}">
+                                        View Details
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-warning send-reminder" data-patient-id="{{ patient.id }}">
+                                        Send Reminder
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Add Record Modal -->
+                        <div class="modal fade" id="addRecordModal{{ patient.id }}">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Add Medical Record - {{ patient.user.name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ url_for('add_record', patient_id=patient.id) }}" method="POST">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="diagnosis" class="form-label">Diagnosis</label>
+                                                <textarea class="form-control" id="diagnosis" name="diagnosis" rows="3" required></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="treatment" class="form-label">Treatment</label>
+                                                <textarea class="form-control" id="treatment" name="treatment" rows="3" required></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="prescription" class="form-label">Prescription</label>
+                                                <textarea class="form-control" id="prescription" name="prescription" rows="3"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="next_visit" class="form-label">Next Visit Date</label>
+                                                <input type="date" class="form-control" id="next_visit" name="next_visit">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save Record</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View Details Modal -->
+                        <div class="modal fade" id="viewDetailsModal{{ patient.id }}">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Patient Details - {{ patient.user.name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" data-bs-toggle="tab" href="#info{{ patient.id }}">
+                                                    Basic Info
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-bs-toggle="tab" href="#medications{{ patient.id }}">
+                                                    Medications
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-bs-toggle="tab" href="#records{{ patient.id }}">
+                                                    Medical Records
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-bs-toggle="tab" href="#assistance{{ patient.id }}">
+                                                    NGO Assistance
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content pt-3">
+                                            <!-- Basic Info Tab -->
+                                            <div class="tab-pane fade show active" id="info{{ patient.id }}">
+                                                <dl class="row">
+                                                    <dt class="col-sm-3">Patient ID</dt>
+                                                    <dd class="col-sm-9">{{ patient.id }}</dd>
+                                                    
+                                                    <dt class="col-sm-3">Email</dt>
+                                                    <dd class="col-sm-9">{{ patient.user.email }}</dd>
+                                                    
+                                                    <dt class="col-sm-3">Date of Birth</dt>
+                                                    <dd class="col-sm-9">
+                                                        {{ patient.date_of_birth.strftime('%Y-%m-%d') if patient.date_of_birth else 'Not provided' }}
+                                                    </dd>
+                                                    
+                                                    <dt class="col-sm-3">Gender</dt>
+                                                    <dd class="col-sm-9">{{ patient.gender or 'Not provided' }}</dd>
+                                                    
+                                                    <dt class="col-sm-3">Blood Group</dt>
+                                                    <dd class="col-sm-9">{{ patient.blood_group or 'Not provided' }}</dd>
+                                                    
+                                                    <dt class="col-sm-3">Emergency Contact</dt>
+                                                    <dd class="col-sm-9">{{ patient.emergency_contact or 'Not provided' }}</dd>
+                                                </dl>
+                                            </div>
+
+                                            <!-- Medications Tab -->
+                                            <div class="tab-pane fade" id="medications{{ patient.id }}">
+                                                {% set active_meds = patient.medications.filter(MedicationSchedule.end_date >= today).all() %}
+                                                {% if active_meds %}
+                                                <h6>Active Medications</h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Medicine</th>
+                                                                <th>Dosage</th>
+                                                                <th>Frequency</th>
+                                                                <th>Start Date</th>
+                                                                <th>End Date</th>
+                                                                <th>Compliance</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for med in active_meds %}
+                                                            <tr>
+                                                                <td>{{ med.medicine_name }}</td>
+                                                                <td>{{ med.dosage }}</td>
+                                                                <td>{{ med.frequency }}</td>
+                                                                <td>{{ med.start_date.strftime('%Y-%m-%d') }}</td>
+                                                                <td>{{ med.end_date.strftime('%Y-%m-%d') }}</td>
+                                                                <td>
+                                                                    {% set taken = med.tracking.filter_by(taken=true).count() %}
+                                                                    {% set total = med.tracking.count() %}
+                                                                    {{ "%.1f"|format(taken / total * 100 if total > 0 else 0) }}%
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                {% else %}
+                                                <p class="text-muted">No active medications.</p>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Medical Records Tab -->
+                                            <div class="tab-pane fade" id="records{{ patient.id }}">
+                                                {% set med_records = patient.records.order_by(MedicalRecord.visit_date.desc()).all() %}
+                                                {% if med_records %}
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Doctor</th>
+                                                                <th>Diagnosis</th>
+                                                                <th>Treatment</th>
+                                                                <th>Next Visit</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for record in med_records %}
+                                                            <tr>
+                                                                <td>{{ record.visit_date.strftime('%Y-%m-%d') }}</td>
+                                                                <td>Dr. {{ record.doctor.name }}</td>
+                                                                <td>{{ record.diagnosis }}</td>
+                                                                <td>{{ record.treatment }}</td>
+                                                                <td>
+                                                                    {{ record.next_visit.strftime('%Y-%m-%d') if record.next_visit else 'Not scheduled' }}
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                {% else %}
+                                                <p class="text-muted">No medical records found.</p>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- NGO Assistance Tab -->
+                                            <div class="tab-pane fade" id="assistance{{ patient.id }}">
+                                                {% set assistance = patient.assistance.order_by(AssistanceRecord.date.desc()).all() %}
+                                                {% if assistance %}
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Type</th>
+                                                                <th>Amount</th>
+                                                                <th>NGO Admin</th>
+                                                                <th>Notes</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for record in assistance %}
+                                                            <tr>
+                                                                <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+                                                                <td>{{ record.type }}</td>
+                                                                <td>${{ "%.2f"|format(record.amount) }}</td>
+                                                                <td>{{ record.created_by_user.name }}</td>
+                                                                <td>{{ record.notes }}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                {% else %}
+                                                <p class="text-muted">No assistance records found.</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#patientsTable').DataTable({
+        order: [[4, 'desc']]
+    });
+
+    $('.send-reminder').click(function() {
+        const patientId = $(this).data('patient-id');
+        $.post(`/send-medication-reminder/${patientId}`)
+            .done(function() {
+                alert('Reminder sent successfully!');
+            })
+            .fail(function() {
+                alert('Error sending reminder');
+            });
+    });
+});
+</script>
+{% endblock %}

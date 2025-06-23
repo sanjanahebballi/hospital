@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Healthcare Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <!-- Left side - Login Form -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <div class="card shadow-lg border-0" style="width: 400px;">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Welcome Back</h2>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="role" class="form-label">Login As</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user-tag"></i>
+                                </span>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="" selected disabled>Select Role</option>
+                                    <option value="admin">Hospital Admin</option>
+                                    <option value="patient">Patient</option>
+                                    <option value="ngo_admin">NGO Staff</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-user-plus me-2"></i> Create Account
+                            </a>
+                        </div>
+                        <div class="d-grid gap-2 mb-2">
+                            <button type="button" class="btn btn-danger btn-lg" disabled>
+                                <i class="fab fa-google me-2"></i> Login with Google
+                            </button>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Home</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side - Healthcare Image & Info -->
+        <div class="col-md-6 bg-primary d-none d-md-flex align-items-center justify-content-center text-white">
+            <div class="text-center p-5">
+                <i class="fas fa-hospital fa-5x mb-4"></i>
+                <h1 class="display-4 mb-4">Healthcare Management System</h1>
+                <p class="lead">
+                    Providing quality healthcare services with modern technology and compassionate care.
+                </p>
+                <div class="row mt-5">
+                    <div class="col-4">
+                        <i class="fas fa-user-md fa-2x mb-2"></i>
+                        <h5>Expert Doctors</h5>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-heartbeat fa-2x mb-2"></i>
+                        <h5>Quality Care</h5>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-hand-holding-medical fa-2x mb-2"></i>
+                        <h5>NGO Support</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="forgotPasswordForm">
+          <div class="mb-3">
+            <label for="forgotEmail" class="form-label">Enter your email address</label>
+            <input type="email" class="form-control" id="forgotEmail" name="forgotEmail" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Send OTP</button>
+        </form>
+        <form id="otpForm" class="d-none mt-3">
+          <div class="mb-3">
+            <label for="otpInput" class="form-label">Enter OTP</label>
+            <input type="text" class="form-control" id="otpInput" name="otpInput" required>
+          </div>
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Reset Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Add floating label effect
+    $('.form-control').on('focus', function() {
+        $(this).parents('.form-group').addClass('focused');
+    });
+
+    $('.form-control').on('blur', function() {
+        var inputValue = $(this).val();
+        if (inputValue == "") {
+            $(this).parents('.form-group').removeClass('focused');
+        }
+    });
+
+    // Forgot Password Modal logic (UI only)
+    $('#forgotPasswordForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#forgotPasswordForm').addClass('d-none');
+        $('#otpForm').removeClass('d-none');
+    });
+    $('#otpForm').on('submit', function(e) {
+        e.preventDefault();
+        // Here you would handle OTP verification and password reset
+        alert('Password reset successful! (Demo only)');
+        $('#forgotPasswordModal').modal('hide');
+        $('#forgotPasswordForm').removeClass('d-none');
+        $('#otpForm').addClass('d-none');
+        $('#forgotPasswordForm')[0].reset();
+        $('#otpForm')[0].reset();
+    });
+});
+</script>
+{% endblock %}

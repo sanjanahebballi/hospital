@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}NGO Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-primary text-white mb-4" style="min-height: 300px;">
+                <h3 class="mb-3">NGO Panel</h3>
+                <p><strong>{{ user.name }}</strong></p>
+                <p>{{ user.email }}</p>
+                <hr>
+                <p>Aggregated patient data and statistics.</p>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <div class="stat-card bg-gradient-info text-white mb-3">
+                        <h5>Cancer</h5>
+                        <h3>{{ disease_counts['Cancer'] }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-gradient-success text-white mb-3">
+                        <h5>TB</h5>
+                        <h3>{{ disease_counts['TB'] }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-gradient-warning text-dark mb-3">
+                        <h5>AIDS</h5>
+                        <h3>{{ disease_counts['AIDS'] }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-gradient-danger text-white mb-3">
+                        <h5>HIV</h5>
+                        <h3>{{ disease_counts['HIV'] }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow p-4 mb-4">
+                <h4 class="mb-3">All Patients</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Hospital</th>
+                                <th>Last Visit</th>
+                                <th>Next Visit</th>
+                                <th>Disease</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in patients %}
+                            <tr>
+                                <td>{{ p.id }}</td>
+                                <td>{{ p.name }}</td>
+                                <td>{{ p.email }}</td>
+                                <td>{{ p.hospital }}</td>
+                                <td>{{ p.last_visit.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ p.next_visit.strftime('%Y-%m-%d') }}</td>
+                                <td><span class="badge bg-info">{{ p.disease }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

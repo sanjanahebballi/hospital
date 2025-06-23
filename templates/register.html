@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Healthcare Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <!-- Left side - Registration Form -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <div class="card shadow-lg border-0" style="width: 400px;">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Create Account</h2>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('register') }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="role" class="form-label">Register As</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user-tag"></i>
+                                </span>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="" selected disabled>Select Role</option>
+                                    <option value="patient">Patient</option>
+                                    <option value="ngo_admin">NGO Staff</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="hospital_admin">Hospital Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i> Register
+                            </button>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                                Already have an account? Login
+                            </a>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i> Home
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side - Healthcare Image & Info -->
+        <div class="col-md-6 bg-success d-none d-md-flex align-items-center justify-content-center text-white">
+            <div class="text-center p-5">
+                <i class="fas fa-user-plus fa-5x mb-4"></i>
+                <h1 class="display-4 mb-4">Join Our Healthcare Network</h1>
+                <p class="lead">
+                    Register now to access our comprehensive healthcare services and support system.
+                </p>
+                <div class="row mt-5">
+                    <div class="col-4">
+                        <i class="fas fa-hand-holding-medical fa-2x mb-2"></i>
+                        <h5>Patient Care</h5>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <h5>NGO Support</h5>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                        <h5>Secure Access</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('.form-control').on('focus', function() {
+        $(this).parents('.form-group').addClass('focused');
+    });
+
+    $('.form-control').on('blur', function() {
+        var inputValue = $(this).val();
+        if (inputValue == "") {
+            $(this).parents('.form-group').removeClass('focused');
+        }
+    });
+});
+</script>
+{% endblock %}
