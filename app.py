@@ -144,40 +144,47 @@ def verify_admin():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
     if request.method == 'POST':
+        name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
         role = request.form.get('role')
-        name = request.form.get('name')
 
-        if email == ADMIN_EMAIL and role != 'admin':
-            flash('This email is reserved for admin use', 'danger')
+        # Check if user already exists
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('Email address already registered.', 'danger')
             return redirect(url_for('register'))
 
-        if User.query.filter_by(email=email).first():
-            flash('Email already exists', 'danger')
-            return redirect(url_for('register'))
-
-        user = User(
-            email=email,
-            password_hash=generate_password_hash(password),
-            role=role,
+        # Create new user
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(
             name=name,
-            is_verified=True if role != 'admin' else False
+            email=email,
+            password=hashed_password,
+            role=role
         )
-        db.session.add(user)
-        db.session.commit()
 
-        if role == 'patient':
-            patient = Patient(
-                user_id=user.id,
-                notice_period=7  # Default notice period
-            )
-            db.session.add(patient)
+        try:
+            db.session.add(new_user)
             db.session.commit()
 
-        flash('Registration successful!', 'success')
-        return redirect(url_for('login'))
+            # If the role is patient, create a patient record
+            if role == 'patient':
+                new_patient = Patient(user_id=new_user.id)
+                db.session.add(new_patient)
+                db.session.commit()
+
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred during registration. Please try again.', 'danger')
+            return redirect(url_for('register'))
+
     return render_template('register.html')
 
 @app.route('/dashboard')
@@ -259,7 +266,7 @@ def update_patient(patient_id):
 @app.route('/reschedule_appointment', methods=['POST'])
 @login_required
 def reschedule_appointment():
-    if current_user.role != 'patient':
+    if current_user.role != 'patipython appent':
         return jsonify({'error': 'Unauthorized'}), 403
         
     patient = Patient.query.filter_by(user_id=current_user.id).first()

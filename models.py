@@ -3,13 +3,12 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    name = db.Column(db.String(100))
-    password_hash = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(20), nullable=False)  # 'admin', 'patient', 'hospital_staff', 'ngo_admin'
     name = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'admin', 'patient', 'hospital_staff', 'ngo_admin'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_verified = db.Column(db.Boolean, default=False)
     verification_code = db.Column(db.String(6))
@@ -19,7 +18,6 @@ class User(db.Model):
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
-    name = db.Column(db.String(100))
     notice_period = db.Column(db.Integer, default=7)
     last_visit = db.Column(db.DateTime)
     next_visit = db.Column(db.DateTime)
@@ -28,7 +26,7 @@ class Patient(db.Model):
     assigned_hospital = db.Column(db.String(100))
     patient_notes = db.Column(db.Text)
 
-    user = db.relationship('User', backref=db.backref('patient', uselist=False))
+    user = db.relationship('User', backref=db.backref('patient', lazy=True, uselist=False))
 
 
 class MedicalRecord(db.Model):
