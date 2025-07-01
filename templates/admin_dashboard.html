@@ -37,8 +37,8 @@
                                 <td>{{ p.email }}</td>
                                 <td>{{ p.hospital }}</td>
                                 <td>{{ p.notice_period }} days</td>
-                                <td>{{ p.last_visit.strftime('%Y-%m-%d') }}</td>
-                                <td>{{ p.next_visit.strftime('%Y-%m-%d') }}</td>
+                                <td>{% if p.last_visit %}{{ p.last_visit.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %}</td>
+                                <td>{% if p.next_visit %}{{ p.next_visit.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %}</td>
                                 <td><span class="badge bg-info">{{ p.disease }}</span></td>
                             </tr>
                             {% endfor %}

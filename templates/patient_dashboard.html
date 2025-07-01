@@ -4,76 +4,189 @@
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- Creative Navbar with Records and Notifications (no Appointments) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow rounded-pill px-4 mb-3" style="border-radius: 30px;">
+                <a class="navbar-brand fw-bold text-primary" href="#"><i class="fas fa-home"></i> Dashboard</a>
+                <div class="collapse navbar-collapse justify-content-end">
+                    <ul class="navbar-nav">
+                        <li class="nav-item mx-2">
+                            <a class="nav-link position-relative" href="#recordsModal" data-bs-toggle="modal">
+                                <i class="fas fa-notes-medical fa-lg"></i> Records
+                                <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle rounded-pill">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item mx-2">
+                            <a class="nav-link position-relative" href="#notificationsModal" data-bs-toggle="modal">
+                                <i class="fas fa-bell fa-lg"></i> Notifications
+                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
     <div class="row">
+        <!-- Left Sidebar: Patient Info -->
         <div class="col-md-3">
-            <div class="stat-card bg-gradient-primary text-white mb-4" style="min-height: 300px;">
-                <h3 class="mb-3">Patient Info</h3>
-                <p><strong>{{ patient.name }}</strong></p>
-                <p>{{ patient.email }}</p>
+            <div class="stat-card bg-gradient-primary text-white mb-4" style="min-height: 350px; border-radius: 18px;">
+                <h3 class="mb-3"><i class="fas fa-user-circle"></i> Patient Info</h3>
+                <p><strong>abc</strong></p>
+                <p>Age: 35</p>
+                <p>Email: user@gmail.com</p>
+                <p>Phone: 1234566789</p>
+                <p>Area: hubli city</p>
                 <hr>
                 <p>Welcome to your health dashboard!</p>
             </div>
         </div>
+        <!-- Center: Main Content -->
         <div class="col-md-9">
-            <div class="card shadow p-4 mb-4">
-                <h4 class="mb-3">Your Details</h4>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="stat-card bg-gradient-info text-white mb-3">
-                            <h5>Disease</h5>
-                            <h3>{{ patient.disease }}</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="stat-card bg-gradient-success text-white mb-3">
-                            <h5>Hospital</h5>
-                            <h3>{{ patient.hospital }}</h3>
-                        </div>
-                    </div>
+            <!-- Next Visit -->
+            <div class="card shadow p-3 mb-4" style="border-radius: 18px;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-calendar-check"></i> Next Visit</h4>
+                    <span class="badge bg-success fs-5">2025-07-01</span>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="stat-card bg-gradient-warning text-dark mb-3">
-                            <h5>Last Visit</h5>
-                            <h3>{{ patient.last_visit.strftime('%Y-%m-%d') }}</h3>
+            </div>
+            <!-- Assign Hospital -->
+            <div class="card shadow p-3 mb-4" style="border-radius: 18px;">
+                <h5>Assigned Hospital</h5>
+                <p class="fs-5"><i class="fas fa-hospital"></i> SDM Hospital (Dharwad)</p>
+            </div>
+            <!-- Last Visit (clickable) -->
+            <div class="card shadow p-3 mb-4" style="border-radius: 18px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#previousVisitsModal">
+                <h5>Last Visit</h5>
+                <span class="fs-5">2025-06-10</span>
+                <small class="text-muted d-block">Click to view previous visits</small>
+            </div>
+            <!-- Appointment Booking -->
+            <div class="card shadow p-4 mb-4" style="border-radius: 18px;">
+                <h4 class="mb-3"><i class="fas fa-calendar-plus"></i> Book New Appointment</h4>
+                <form method="post" action="/book_appointment">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="appointment_date" class="form-label">Select Date</label>
+                            <input type="date" class="form-control" name="appointment_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hospital_id" class="form-label">Hospital</label>
+                            <select class="form-select" name="hospital_id" id="hospital_id" required>
+                                <option value="sdm">SDM Hospital (Dharwad)</option>
+                                <option value="kims">KIMS Hospital (Hubli)</option>
+                                <option value="balaji">Balaji Hospital (Hubli)</option>
+                                <option value="civil">Civil Hospital (Dharwad)</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="stat-card bg-gradient-danger text-white mb-3">
-                            <h5>Next Visit</h5>
-                            <h3>{{ patient.next_visit.strftime('%Y-%m-%d') }}</h3>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" name="department" id="department" required>
+                                <option value="">Select Department</option>
+                                <option value=>General Medicine</option>
+                                <option value=>AIDS</option>
+                                <option value=>HIV</option>
+                                <option value=>chemothreaphy</option>
+                                <option value=>Blood Checkup</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-                <div class="card p-3 mt-3">
-                    <h5>Notice Period</h5>
-                    <p>{{ patient.notice_period }} days</p>
-                </div>
+                    <button type="submit" class="btn btn-success">Book Appointment</button>
+                </form>
+            </div>
+            <!-- Old Appointments -->
+            <div class="card shadow p-4 mb-4" style="border-radius: 18px;">
+                <h4 class="mb-3"><i class="fas fa-calendar-alt"></i> Old Appointments</h4>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>2025-05-15 - KIMS Hospital (Hubli) (Blood checkup)</span>
+                        <span class="badge bg-info">Completed</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>2025-04-10 - SDM Hospital (Dharwad) (General Medicine)</span>
+                        <span class="badge bg-info">Completed</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>2025-03-20 - Balaji Hospital (Hubli) (chemothreaphy)</span>
+                        <span class="badge bg-info">Completed</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Previous Visits Modal -->
+<div class="modal fade" id="previousVisitsModal" tabindex="-1" aria-labelledby="previousVisitsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="previousVisitsModalLabel">Previous Visits</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group">
+            <li class="list-group-item">2025-06-10 - SDM Hospital (Dharwad) (General Medicine)</li>
+            <li class="list-group-item">2025-05-15 - KIMS Hospital (Hubli) (Blood checkup)</li>
+            <li class="list-group-item">2025-04-10 - SDM Hospital (Dharwad) (General Medicine)</li>
+            <li class="list-group-item">2025-03-20 - Balaji Hospital (Hubli) (chemothreaphy)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Records Modal -->
+<div class="modal fade" id="recordsModal" tabindex="-1" aria-labelledby="recordsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="recordsModalLabel">Medical Records</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group">
+            <li class="list-group-item"><strong>2025-06-10:</strong> Blood Test - Normal</li>
+            <li class="list-group-item"><strong>2025-05-15:</strong> ECG - Normal</li>
+            <li class="list-group-item"><strong>2025-04-10:</strong> X-Ray - No issues</li>
+            <li class="list-group-item"><strong>2025-03-20:</strong> Orthopedic Checkup - Recovery in progress</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications Modal -->
+<div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificationsModalLabel"><i class="fas fa-bell"></i> Notifications</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group">
+            <li class="list-group-item">Appointment confirmed for 2025-07-01 at SDM Hospital</li>
+            <li class="list-group-item">Visit summary available for last checkup</li>
+            <li class="list-group-item">New message from KIMS Hospital</li>
+            <li class="list-group-item">Your next visit is scheduled soon!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Mark medication as taken
-    $('.mark-taken').click(function() {
-        const medId = $(this).data('med-id');
-        $.post('/medication/mark-taken/' + medId)
-            .done(function() {
-                location.reload();
-            })
-            .fail(function(err) {
-                alert('Error marking medication as taken');
-            });
+    // Department dropdown population (example, needs backend support)
+    $('#hospital_id').on('change', function() {
+        var hospitalId = $(this).val();
+        // AJAX call to fetch departments for selected hospital
+        // Example: $.get('/departments/' + hospitalId, function(data) { ... });
     });
-
-    // Show notification modal if there are unread notifications
-    {% if unread_notifications %}
-    $(document).ready(function() {
-        $('#notificationsModal').modal('show');
-    });
-    {% endif %}
 </script>
 {% endblock %}

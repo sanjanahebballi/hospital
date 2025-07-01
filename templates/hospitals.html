@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dashboard - Healthcare Management System{% endblock %}
+{% block content %}
+<div class="container-fluid mt-5">
+  <div class="row">
+    <!-- Sidebar: List of Hospitals -->
+    <div class="col-md-3 mb-4">
+      <div class="card shadow-lg" style="border-radius: 22px; border: 2px solid #fff;">
+        <div class="p-4">
+          <h4 class="fw-bold mb-4 text-primary"><i class="fas fa-hospital-alt me-2"></i> Hospitals</h4>
+          <ul class="list-group list-group-flush" id="hospitalList">
+            {% for hospital in hospitals %}
+            <li class="list-group-item list-group-item-action hospital-card" style="cursor:pointer; border-radius: 12px; margin-bottom: 12px; font-size:1.2em;" data-hospital='{{ hospital.id }}'>
+              <div class="d-flex flex-column">
+                <span class="fw-bold text-primary" style="font-size:1.3em;">{{ hospital.name }}</span>
+                <small class="text-muted">Area: {{ hospital.area }}</small>
+                <small class="text-muted">Pincode: {{ hospital.pincode or 'N/A' }}</small>
+                <small class="text-muted">Address: {{ hospital.address }}</small>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Main Content: Hospital Details, Patients, Appointments, Next Visits -->
+    <div class="col-md-9">
+      <div id="dashboardContent">
+        <div class="alert alert-info">Select a hospital from the left to view its patients, appointment history, and next visits.</div>
+      </div>
+      <div class="mt-5">
+        <h4 class="fw-bold mb-3 text-secondary">Appointments History <span class="fs-6 text-muted">(Current & Previous Months)</span></h4>
+        <div id="appointmentsSection">
+          <div class="alert alert-light">Select a hospital to view appointment history.</div>
+        </div>
+      </div>
+      <div class="mt-5">
+        <h4 class="fw-bold mb-3 text-success">Next Visit List <span class="fs-6 text-muted">(Current & Previous Months)</span></h4>
+        <div id="nextVisitsSection">
+          <div class="alert alert-light">Select a hospital to view next visit list.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Patient Details Modal -->
+<div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="patientModalLabel">Patient Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="patientDetails">
+          <!-- Patient details will be loaded here by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+const allHospitals = {{ hospitals|tojson|safe }};
+const allPatients = {{ patients_json|tojson|safe }};
+const appointments = [
+  // Current month
+  {hospital_id: 1, patient_name: 'Ravi', time: '2025-06-28 10:00', department: 'HIV', month: '2025-06'},
+  {hospital_id: 2, patient_name: 'Sunita', time: '2025-06-27 11:30', department: 'AIDS', month: '2025-06'},
+  // Previous months
+  {hospital_id: 1, patient_name: 'Manoj', time: '2025-05-15 09:00', department: 'TB', month: '2025-05'},
+  {hospital_id: 3, patient_name: 'Asha', time: '2025-04-20 14:00', department: 'Cancer', month: '2025-04'},
+  {hospital_id: 4, patient_name: 'Deepak', time: '2025-03-10 13:00', department: 'HIV', month: '2025-03'}
+];
+const nextVisits = [
+  // Current month
+  {hospital: 'SDM Hospital', patient_name: 'Ravi', next_visit: '2025-06-30', reason: 'Medicine Follow-up', month: '2025-06'},
+  {hospital: 'KIMS Hospital', patient_name: 'Sunita', next_visit: '2025-06-29', reason: 'Checkup', month: '2025-06'},
+  // Previous months
+  {hospital: 'Balaji Hospital', patient_name: 'Manoj', next_visit: '2025-05-20', reason: 'Lab Test', month: '2025-05'},
+  {hospital: 'Civil Hospital', patient_name: 'Asha', next_visit: '2025-04-18', reason: 'Consultation', month: '2025-04'}
+];
+const staffList = [
+  {name: 'Amit Kumar', area: 'Hubli City', img: 'https://randomuser.me/api/portraits/men/11.jpg'},
+  {name: 'Priya Singh', area: 'Dharwad', img: 'https://randomuser.me/api/portraits/women/21.jpg'},
+  {name: 'Rahul Patil', area: 'Gokul Road', img: 'https://randomuser.me/api/portraits/men/22.jpg'},
+  {name: 'Sneha Rao', area: 'Vidyanagar', img: 'https://randomuser.me/api/portraits/women/23.jpg'},
+  {name: 'Vikas Joshi', area: 'Old Hubli', img: 'https://randomuser.me/api/portraits/men/24.jpg'}
+];
+const patientNames = [
+  'Ravi', 'Sunita', 'Manoj', 'Asha', 'Deepak', 'Kiran', 'Meena', 'Suresh', 'Lata', 'Vijay',
+  'Anil', 'Pooja', 'Ramesh', 'Geeta', 'Sanjay', 'Neha', 'Ajay', 'Kavita', 'Arun', 'Shilpa',
+  'Nitin', 'Divya', 'Raj', 'Komal', 'Prakash', 'Seema', 'Yogesh', 'Nisha', 'Mahesh', 'Payal'
+];
+function getStaffForPatient(patientId) {
+  return staffList[patientId % staffList.length];
+}
+// Handle hospital card click
+$(document).on('click', '.hospital-card', function() {
+  const hospitalId = $(this).data('hospital');
+  const hospital = allHospitals.find(h => h.id == hospitalId);
+  // Patients for this hospital (demo: show all, or filter by hospital)
+  const patients = allPatients.slice(0, 10).map((p, idx) => {
+    return {...p, name: patientNames[idx % patientNames.length], staff: getStaffForPatient(idx)};
+  });
+  let html = `<div class='card shadow p-4 mb-4' style='border-radius:18px;'>`;
+  html += `<h3 class='mb-3 text-primary'><i class='fas fa-hospital-alt'></i> ${hospital.name}</h3>`;
+  html += `<p><strong>Area:</strong> ${hospital.area} | <strong>Pincode:</strong> ${hospital.pincode || 'N/A'}</p>`;
+  html += `<p><strong>Address:</strong> ${hospital.address}</p>`;
+  html += `<hr><h4 class='mb-3'><i class='fas fa-users'></i> Patients</h4>`;
+  if (patients.length === 0) {
+    html += `<div class='alert alert-warning'>No patients assigned to this hospital.</div>`;
+  } else {
+    html += `<div class='row'>`;
+    patients.forEach((p, idx) => {
+      html += `<div class='col-md-6 mb-4'>`;
+      html += `<div class='card patient-link shadow-lg' style='border-radius: 18px; font-size:1.2em; cursor:pointer;' data-bs-toggle='modal' data-bs-target='#patientModal' data-patient='${JSON.stringify(p)}'>`;
+      html += `<div class='card-body d-flex align-items-center'>`;
+      html += `<i class='fas fa-user fa-2x me-3'></i>`;
+      html += `<div>`;
+      html += `<h5 class='mb-1'>${p.name}</h5>`;
+      html += `<span class='badge bg-info mb-1'>ID: ${p.id}</span><br>`;
+      html += `<span class='badge bg-secondary mb-1'>Handled by: ${p.staff.name}</span>`;
+      html += `<div class='text-muted' style='font-size:0.95em;'>${p.staff.area}</div>`;
+      html += `<div class='mt-2'>`;
+      html += `<label for='nextVisit_${p.id}' class='form-label'>Next Visit:</label> `;
+      html += `<input type='date' class='form-control d-inline-block w-auto next-visit-date' id='nextVisit_${p.id}' value='${p.next_visit || ''}' data-patient-id='${p.id}' />`;
+      html += `<button class='btn btn-sm btn-success ms-2 update-next-visit' data-patient-id='${p.id}'>Update</button>`;
+      html += `<div class='next-visit-error text-danger small mt-1' id='nextVisitError_${p.id}' style='display:none;'></div>`;
+      html += `</div>`;
+      html += `</div></div></div></div></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+  $('#dashboardContent').html(html);
+  // Appointments (current and previous months)
+  const appts = appointments.filter(a => a.hospital_id == hospitalId);
+  let apptHtml = '';
+  if (appts.length === 0) {
+    apptHtml = `<div class='alert alert-warning'>No appointments for this hospital.</div>`;
+  } else {
+    apptHtml = `<table class='table table-bordered table-lg'><thead><tr><th>Patient Name</th><th>Time</th><th>Department</th><th>Month</th></tr></thead><tbody>`;
+    appts.forEach(a => {
+      apptHtml += `<tr><td>${a.patient_name}</td><td>${a.time}</td><td>${a.department}</td><td>${a.month}</td></tr>`;
+    });
+    apptHtml += `</tbody></table>`;
+  }
+  $('#appointmentsSection').html(apptHtml);
+  // Next Visits (current and previous months)
+  const visits = nextVisits.filter(n => n.hospital === hospital.name);
+  let visitHtml = '';
+  if (visits.length === 0) {
+    visitHtml = `<div class='alert alert-warning'>No next visits for this hospital.</div>`;
+  } else {
+    visitHtml = `<table class='table table-bordered table-lg'><thead><tr><th>Patient Name</th><th>Next Visit</th><th>Reason</th><th>Month</th></tr></thead><tbody>`;
+    visits.forEach(n => {
+      visitHtml += `<tr><td>${n.patient_name}</td><td>${n.next_visit}</td><td>${n.reason}</td><td>${n.month}</td></tr>`;
+    });
+    visitHtml += `</tbody></table>`;
+  }
+  $('#nextVisitsSection').html(visitHtml);
+});
+// Handle patient click for history
+$(document).on('click', '.patient-link', function() {
+  const patient = $(this).data('patient');
+  // Demo patient history
+  let historyHtml = `<h4><i class="fas fa-user"></i> ${patient.name}</h4>`;
+  historyHtml += `<p><strong>Patient ID:</strong> ${patient.id}</p>`;
+  historyHtml += `<p><strong>Handled by:</strong> <span class='badge bg-secondary'>${patient.staff.name}</span> (${patient.staff.area})</p>`;
+  historyHtml += `<h6>History</h6>`;
+  historyHtml += `<table class='table table-striped'><thead><tr><th>Date</th><th>Medicine</th><th>Checkup</th></tr></thead><tbody>`;
+  historyHtml += `<tr><td>2025-06-10</td><td>Medicine A</td><td>Blood Test</td></tr>`;
+  historyHtml += `<tr><td>2025-05-15</td><td>Medicine B</td><td>X-Ray</td></tr>`;
+  historyHtml += `<tr><td>2025-04-20</td><td>Medicine C</td><td>Consultation</td></tr>`;
+  historyHtml += `</tbody></table>`;
+  historyHtml += `<h6>Visits</h6>`;
+  historyHtml += `<ul class='list-group mb-2'>`;
+  historyHtml += `<li class='list-group-item'>2025-06-10 - Regular Visit</li>`;
+  historyHtml += `<li class='list-group-item'>2025-05-15 - Follow-up</li>`;
+  historyHtml += `<li class='list-group-item'>2025-04-20 - First Visit</li>`;
+  historyHtml += `</ul>`;
+  $('#patientDetails').html(historyHtml);
+});
+// Handle next visit update
+$(document).on('click', '.update-next-visit', function(e) {
+  e.stopPropagation();
+  const patientId = $(this).data('patient-id');
+  const newDate = $(`#nextVisit_${patientId}`).val();
+  if (!newDate) return;
+  // Check for duplicate date for this patient
+  const patient = allPatients.find(p => p.id == patientId);
+  if (patient && patient.next_visit === newDate) {
+    $(`#nextVisitError_${patientId}`).text('This date is already set as the next visit.').show();
+    return;
+  }
+  // Hide error
+  $(`#nextVisitError_${patientId}`).hide();
+  // Send AJAX request to backend
+  $.ajax({
+    url: '/update_next_visit',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({patient_id: patientId, next_visit: newDate}),
+    success: function(resp) {
+      $(`#nextVisitError_${patientId}`).hide();
+      alert('Next visit updated and patient notified!');
+      // Optionally update UI
+      patient.next_visit = newDate;
+    },
+    error: function(xhr) {
+      $(`#nextVisitError_${patientId}`).text(xhr.responseJSON?.error || 'Error updating next visit.').show();
+    }
+  });
+});
+</script>
+{% endblock %}

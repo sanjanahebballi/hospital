@@ -90,13 +90,17 @@
                             </td>
                             <td>
                                 {% set last_record = patient.records.order_by(MedicalRecord.visit_date.desc()).first() %}
-                                {{ last_record.visit_date.strftime('%Y-%m-%d') if last_record else 'No visits' }}
+                                {% if last_record and last_record.visit_date %}
+                                    {{ last_record.visit_date.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    No visits
+                                {% endif %}
                             </td>
                             <td>
                                 {% if last_record and last_record.next_visit %}
-                                {{ last_record.next_visit.strftime('%Y-%m-%d') }}
+                                    {{ last_record.next_visit.strftime('%Y-%m-%d') }}
                                 {% else %}
-                                Not scheduled
+                                    Not scheduled
                                 {% endif %}
                             </td>
                             <td>
