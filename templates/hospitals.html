@@ -1,47 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Hospital Dashboard - Healthcare Management System{% endblock %}
 {% block content %}
-<div class="container-fluid mt-5">
-  <div class="row">
-    <!-- Sidebar: List of Hospitals -->
-    <div class="col-md-3 mb-4">
-      <div class="card shadow-lg" style="border-radius: 22px; border: 2px solid #fff;">
-        <div class="p-4">
-          <h4 class="fw-bold mb-4 text-primary"><i class="fas fa-hospital-alt me-2"></i> Hospitals</h4>
-          <ul class="list-group list-group-flush" id="hospitalList">
-            {% for hospital in hospitals %}
-            <li class="list-group-item list-group-item-action hospital-card" style="cursor:pointer; border-radius: 12px; margin-bottom: 12px; font-size:1.2em;" data-hospital='{{ hospital.id }}'>
-              <div class="d-flex flex-column">
-                <span class="fw-bold text-primary" style="font-size:1.3em;">{{ hospital.name }}</span>
-                <small class="text-muted">Area: {{ hospital.area }}</small>
-                <small class="text-muted">Pincode: {{ hospital.pincode or 'N/A' }}</small>
-                <small class="text-muted">Address: {{ hospital.address }}</small>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
+<div class="container py-5">
+  <h2 class="text-center mb-5 fw-bold text-primary" style="letter-spacing:1px;">All Hospitals</h2>
+  <div class="row justify-content-center g-4">
+    {% for hospital in hospitals %}
+      {% if loop.index0 % 2 == 0 and not loop.first %}</div><div class="row justify-content-center g-4">{% endif %}
+      <div class="col-md-6 mb-4 d-flex align-items-stretch">
+        <div class="card shadow-lg hospital-card h-100 w-100" style="border-radius: 28px; border: 2.5px solid #e0e0e0; cursor:pointer; transition:transform 0.25s, box-shadow 0.25s; background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.10); min-height: 340px;">
+          <div class="card-body p-5 text-center">
+            <div class="mb-3"><i class="fas fa-hospital-alt fa-3x text-primary"></i></div>
+            <h3 class="fw-bold text-primary mb-2" style="letter-spacing:1px; font-size:2.2em;">{{ hospital.name }}</h3>
+            <div class="mb-2"><i class="fas fa-map-marker-alt me-2"></i><span class="fw-semibold">{{ hospital.area }}</span></div>
+            <div class="mb-2"><span class="badge bg-info">Pincode: {{ hospital.pincode }}</span></div>
+            <div class="mb-2"><span class="text-muted">{{ hospital.address }}</span></div>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- Main Content: Hospital Details, Patients, Appointments, Next Visits -->
-    <div class="col-md-9">
-      <div id="dashboardContent">
-        <div class="alert alert-info">Select a hospital from the left to view its patients, appointment history, and next visits.</div>
-      </div>
-      <div class="mt-5">
-        <h4 class="fw-bold mb-3 text-secondary">Appointments History <span class="fs-6 text-muted">(Current & Previous Months)</span></h4>
-        <div id="appointmentsSection">
-          <div class="alert alert-light">Select a hospital to view appointment history.</div>
+    {% endfor %}
+  </div>
+  <!-- Medicine List Section -->
+  <div class="mt-5">
+    <h2 class="text-center mb-4 fw-bold text-success" style="letter-spacing:1px;">Available Medicines by Disease</h2>
+    <div class="row justify-content-center g-4">
+      <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card shadow medicine-card h-100" style="border-radius: 22px; background: linear-gradient(135deg, #f8e1ff 0%, #fff 100%);">
+          <div class="card-body text-center">
+            <h5 class="fw-bold text-danger mb-3"><i class="fas fa-virus"></i> HIV</h5>
+            <ul class="list-unstyled mb-0">
+              <li>Tenofovir</li>
+              <li>Lamivudine</li>
+              <li>Efavirenz</li>
+              <li>Dolutegravir</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="mt-5">
-        <h4 class="fw-bold mb-3 text-success">Next Visit List <span class="fs-6 text-muted">(Current & Previous Months)</span></h4>
-        <div id="nextVisitsSection">
-          <div class="alert alert-light">Select a hospital to view next visit list.</div>
+      <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card shadow medicine-card h-100" style="border-radius: 22px; background: linear-gradient(135deg, #e1f7ff 0%, #fff 100%);">
+          <div class="card-body text-center">
+            <h5 class="fw-bold text-primary mb-3"><i class="fas fa-ribbon"></i> AIDS</h5>
+            <ul class="list-unstyled mb-0">
+              <li>Zidovudine</li>
+              <li>Abacavir</li>
+              <li>Emtricitabine</li>
+              <li>Atazanavir</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card shadow medicine-card h-100" style="border-radius: 22px; background: linear-gradient(135deg, #ffe1e1 0%, #fff 100%);">
+          <div class="card-body text-center">
+            <h5 class="fw-bold text-warning mb-3"><i class="fas fa-dna"></i> Cancer</h5>
+            <ul class="list-unstyled mb-0">
+              <li>Cisplatin</li>
+              <li>Paclitaxel</li>
+              <li>Doxorubicin</li>
+              <li>Imatinib</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card shadow medicine-card h-100" style="border-radius: 22px; background: linear-gradient(135deg, #e1ffe7 0%, #fff 100%);">
+          <div class="card-body text-center">
+            <h5 class="fw-bold text-success mb-3"><i class="fas fa-capsules"></i> General</h5>
+            <ul class="list-unstyled mb-0">
+              <li>Paracetamol</li>
+              <li>Ibuprofen</li>
+              <li>Amoxicillin</li>
+              <li>Metformin</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <div id="dashboardContent" class="mt-5"></div>
 </div>
 <!-- Patient Details Modal -->
 <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
@@ -65,23 +101,6 @@
 <script type="text/javascript">
 const allHospitals = {{ hospitals|tojson|safe }};
 const allPatients = {{ patients_json|tojson|safe }};
-const appointments = [
-  // Current month
-  {hospital_id: 1, patient_name: 'Ravi', time: '2025-06-28 10:00', department: 'HIV', month: '2025-06'},
-  {hospital_id: 2, patient_name: 'Sunita', time: '2025-06-27 11:30', department: 'AIDS', month: '2025-06'},
-  // Previous months
-  {hospital_id: 1, patient_name: 'Manoj', time: '2025-05-15 09:00', department: 'TB', month: '2025-05'},
-  {hospital_id: 3, patient_name: 'Asha', time: '2025-04-20 14:00', department: 'Cancer', month: '2025-04'},
-  {hospital_id: 4, patient_name: 'Deepak', time: '2025-03-10 13:00', department: 'HIV', month: '2025-03'}
-];
-const nextVisits = [
-  // Current month
-  {hospital: 'SDM Hospital', patient_name: 'Ravi', next_visit: '2025-06-30', reason: 'Medicine Follow-up', month: '2025-06'},
-  {hospital: 'KIMS Hospital', patient_name: 'Sunita', next_visit: '2025-06-29', reason: 'Checkup', month: '2025-06'},
-  // Previous months
-  {hospital: 'Balaji Hospital', patient_name: 'Manoj', next_visit: '2025-05-20', reason: 'Lab Test', month: '2025-05'},
-  {hospital: 'Civil Hospital', patient_name: 'Asha', next_visit: '2025-04-18', reason: 'Consultation', month: '2025-04'}
-];
 const staffList = [
   {name: 'Amit Kumar', area: 'Hubli City', img: 'https://randomuser.me/api/portraits/men/11.jpg'},
   {name: 'Priya Singh', area: 'Dharwad', img: 'https://randomuser.me/api/portraits/women/21.jpg'},
@@ -136,32 +155,6 @@ $(document).on('click', '.hospital-card', function() {
   }
   html += `</div>`;
   $('#dashboardContent').html(html);
-  // Appointments (current and previous months)
-  const appts = appointments.filter(a => a.hospital_id == hospitalId);
-  let apptHtml = '';
-  if (appts.length === 0) {
-    apptHtml = `<div class='alert alert-warning'>No appointments for this hospital.</div>`;
-  } else {
-    apptHtml = `<table class='table table-bordered table-lg'><thead><tr><th>Patient Name</th><th>Time</th><th>Department</th><th>Month</th></tr></thead><tbody>`;
-    appts.forEach(a => {
-      apptHtml += `<tr><td>${a.patient_name}</td><td>${a.time}</td><td>${a.department}</td><td>${a.month}</td></tr>`;
-    });
-    apptHtml += `</tbody></table>`;
-  }
-  $('#appointmentsSection').html(apptHtml);
-  // Next Visits (current and previous months)
-  const visits = nextVisits.filter(n => n.hospital === hospital.name);
-  let visitHtml = '';
-  if (visits.length === 0) {
-    visitHtml = `<div class='alert alert-warning'>No next visits for this hospital.</div>`;
-  } else {
-    visitHtml = `<table class='table table-bordered table-lg'><thead><tr><th>Patient Name</th><th>Next Visit</th><th>Reason</th><th>Month</th></tr></thead><tbody>`;
-    visits.forEach(n => {
-      visitHtml += `<tr><td>${n.patient_name}</td><td>${n.next_visit}</td><td>${n.reason}</td><td>${n.month}</td></tr>`;
-    });
-    visitHtml += `</tbody></table>`;
-  }
-  $('#nextVisitsSection').html(visitHtml);
 });
 // Handle patient click for history
 $(document).on('click', '.patient-link', function() {

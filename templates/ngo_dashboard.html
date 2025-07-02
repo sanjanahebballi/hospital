@@ -7,25 +7,22 @@
     <div class="row">
         <!-- Left Sidebar: NGO Info -->
         <div class="col-md-3">
-            <div class="card bg-gradient-primary text-white mb-4 shadow-lg" style="min-height: 350px; border-radius: 22px; border: 2px solid #fff;">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://img.icons8.com/color/96/000000/charity.png" alt="NGO Symbol" class="me-3" style="width:64px; height:64px; border-radius:50%; background:#fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                    <div>
-                        <h4 class="mb-0 fw-bold" style="letter-spacing:1px;">Hope &amp; Health Network <span class="badge bg-light text-primary ms-2" style="font-size:0.8em;">NGO</span></h4>
+            <!-- NGO Name and Address Banner (top of left sidebar) -->
+            <div class="mb-3 text-center" style="background: linear-gradient(90deg, #1a237e 60%, #3949ab 100%); border-radius: 18px; padding: 1.2em 0 1em 0; color: #fff; box-shadow: 0 2px 8px rgba(26,35,126,0.10);">
+                <img src="https://img.icons8.com/color/96/000000/charity.png" alt="NGO Logo" style="width:54px; height:54px; border-radius:50%; background:#fff; box-shadow: 0 2px 8px rgba(0,0,0,0.10); margin-bottom: 0.5em;">
+                <div style="font-size:1.5em; font-weight:700; letter-spacing:1px;">Humanity Spark Trust</div>
+                <div style="font-size:1.1em; font-weight:500; margin-top:0.2em;">
+                    <i class="fas fa-map-marker-alt me-2"></i>12, MG Layout, Indiranagar, Bengaluru, Karnataka – 560038
+                </div>
+            </div>
+            
+            <!-- NGO Details Top Left -->
+            <div class="card mb-3 shadow-sm" style="border-radius:18px; background: linear-gradient(90deg, #f8fafc 60%, #e0e7ef 100%); border: 2px solid #e0e7ef;">
+                <div class="card-body py-3 px-4">
+                    <h5 class="mb-1 fw-bold" style="color:#1a237e; letter-spacing:1px;">Humanity Spark Trust</h5>
+                    <div class="mb-0" style="font-size:1em; color:#374151;">
+                        <i class="fas fa-map-marker-alt me-2"></i>12, MG Layout, Indiranagar, Bengaluru, Karnataka – 560038
                     </div>
-                </div>
-                <hr style="border-top: 2px solid #fff;">
-                <div class="mb-2">
-                    <i class="fas fa-map-marker-alt me-2"></i>
-                    <span class="fw-semibold">#23, 4th Cross, Vijayanagar, Bangalore, Karnataka - 560040</span>
-                </div>
-                <div class="mb-2">
-                    <i class="fas fa-envelope me-2"></i>
-                    <span class="fw-semibold">ngo@gmail.com</span>
-                </div>
-                <div class="text-center mt-4">
-                    <img src="https://img.icons8.com/fluency/48/000000/medical-doctor.png" alt="NGO Office" style="width:48px;">
-                    <p class="mt-2 mb-0" style="font-size:1.1em;">Serving the community with care</p>
                 </div>
             </div>
             <!-- Medicine List -->
@@ -51,8 +48,21 @@
         </div>
         <!-- Main Content -->
         <div class="col-md-9">
-            <div class="d-flex justify-content-end mb-3">
-                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg" style="z-index:1000; position:relative;"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+            <!-- Top Bar: Profile, Assistance, Notification -->
+            <div class="d-flex justify-content-end align-items-center mb-3 gap-3">
+                <div class="dropdown">
+                    <button class="btn btn-light position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:50%;">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount" style="font-size:0.7em;display:none;">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown" style="min-width:320px;max-height:350px;overflow-y:auto;">
+                        <li class="dropdown-header">Notifications</li>
+                        <div id="notificationList">
+                            <li class="text-center text-muted py-2">No notifications</li>
+                        </div>
+                    </ul>
+                </div>
+                <!-- Removed Profile and Assistance buttons -->
             </div>
             <!-- Top: Staff Members -->
             <div class="card shadow mb-4 p-3" style="border-radius: 18px;">
@@ -78,7 +88,7 @@
                 </div>
             </div>
             <!-- Staff & Patients List -->
-            <div class="row" id="staffPatients">
+            <div class="row position-relative" id="staffPatients">
                 <!-- Will be filled by JS after staff click -->
             </div>
         </div>
@@ -114,11 +124,48 @@
     </div>
   </div>
 </div>
+<!-- Add Patient Modal -->
+<div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPatientModalLabel">Add New Patient</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addPatientForm">
+          <div class="mb-3">
+            <label for="patientName" class="form-label">Patient Name</label>
+            <input type="text" class="form-control" id="patientName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="patientAddress" class="form-label">Address</label>
+            <input type="text" class="form-control" id="patientAddress" name="address" required>
+          </div>
+          <div class="mb-3">
+            <label for="patientPhone" class="form-label">Phone</label>
+            <input type="text" class="form-control" id="patientPhone" name="phone" required>
+          </div>
+          <div class="mb-3">
+            <label for="patientEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="patientEmail" name="email" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Patient</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Staff click: show patients for that staff
+// 1. Move notification icon a bit to the right
+$(document).ready(function() {
+  $("#notificationDropdown").parent().css("margin-left", "30px");
+});
+
+// Staff click: show patients for that staff (with add patient button and modal)
 const patientNames = [
     'Ravi', 'Sunita', 'Manoj', 'Asha', 'Deepak', 'Kiran', 'Meena', 'Suresh', 'Lata', 'Vijay',
     'Anil', 'Pooja', 'Ramesh', 'Geeta', 'Sanjay', 'Neha', 'Ajay', 'Kavita', 'Arun', 'Shilpa',
@@ -132,39 +179,346 @@ const patientHistory = [
 ];
 $(document).on('click', '.staff-link', function() {
     var staff = $(this).data('staff');
+    window.lastStaffClicked = staff;
+    if(!staff.patients) staff.patients = [];
     let html = '';
     html += `<div class='col-12'><h5 class='mb-3'><i class='fas fa-users'></i> Patients handled by <span class='text-primary'>${staff.name}</span> (${staff.area})</h5></div>`;
+    staff.patients.forEach(function(p, idx) {
+        html += `<div class='col-12 mb-2'>
+            <div class='card shadow d-flex flex-row align-items-center' style='border-radius: 14px;'>
+                <div class='card-body d-flex align-items-center flex-grow-1' style='padding:0.75rem 1rem;'>
+                    <i class='fas fa-user fa-lg me-2'></i>
+                    <div>
+                        <h6 class='mb-0'>${p.name}</h6>
+                        <small class='text-muted'>${p.area||''}</small>
+                        <div style='font-size:0.9em;color:#607d8b;'>${p.email||''}</div>
+                    </div>
+                </div>
+                <button class='btn btn-sm btn-outline-info ms-auto me-2 view-patient-btn' data-patient-idx='${idx}' data-staff-name='${staff.name}'>View</button>
+                <button class='btn btn-sm btn-outline-primary me-3 history-patient-btn' data-patient-idx='${idx}' data-staff-name='${staff.name}'>History</button>
+            </div>
+        </div>`;
+    });
     for(let i=0; i<10; i++) {
         let pname = patientNames[Math.floor(Math.random()*patientNames.length)];
-        html += `<div class='col-md-6 mb-3'>
-            <div class='card shadow patient-link' style='border-radius: 18px; cursor:pointer;' data-bs-toggle='modal' data-bs-target='#patientModal' data-patient='{"name":"${pname}","area":"${staff.area}"}'>
-                <div class='card-body d-flex align-items-center'>
-                    <i class='fas fa-user fa-2x me-3'></i>
+        html += `<div class='col-12 mb-2'>
+            <div class='card shadow d-flex flex-row align-items-center' style='border-radius: 14px;'>
+                <div class='card-body d-flex align-items-center flex-grow-1' style='padding:0.75rem 1rem;'>
+                    <i class='fas fa-user fa-lg me-2'></i>
                     <div>
                         <h6 class='mb-0'>${pname}</h6>
                         <small class='text-muted'>${staff.area}</small>
                     </div>
                 </div>
+                <button class='btn btn-sm btn-outline-info ms-auto me-2 view-patient-btn' data-patient-idx='${i+1000}' data-staff-name='${staff.name}'>View</button>
+                <button class='btn btn-sm btn-outline-primary me-3 history-patient-btn' data-patient-idx='${i+1000}' data-staff-name='${staff.name}'>History</button>
             </div>
         </div>`;
+// Show patient history and message box when clicking the new History button
+$(document).on('click', '.history-patient-btn', function(e) {
+    e.stopPropagation();
+    var idx = $(this).data('patient-idx');
+    var staffName = $(this).data('staff-name');
+    var staff = null;
+    $('.staff-link').each(function() {
+        var s = $(this).data('staff');
+        if(s.name === staffName) staff = s;
+    });
+    var p = (staff && staff.patients && staff.patients[idx]) ? staff.patients[idx] : null;
+    // Only show medicine history and message box, not patient details
+    var hospitalNames = [
+        'SDM Hospital (Dharwad)',
+        'KIMS Hospital (Hubli)',
+        'Balaji Hospital (Hubli)',
+        'Civil Hospital (Dharwad)'
+    ];
+    // Show 8 months of medicine history for the patient, with date, medicine, hospital, and status
+    var medHistory = [
+        {date: '2025-06-10', medicine: 'Tamoxifen', hospital: hospitalNames[0], status: 'Taken'},
+        {date: '2025-05-12', medicine: 'Letrozole', hospital: hospitalNames[1], status: 'Taken'},
+        {date: '2025-04-15', medicine: 'Imatinib', hospital: hospitalNames[2], status: 'Not Taken'},
+        {date: '2025-03-18', medicine: 'Tamoxifen', hospital: hospitalNames[3], status: 'Taken'},
+        {date: '2025-02-14', medicine: 'Letrozole', hospital: hospitalNames[0], status: 'Taken'},
+        {date: '2025-01-11', medicine: 'Imatinib', hospital: hospitalNames[1], status: 'Taken'},
+        {date: '2024-12-09', medicine: 'Tamoxifen', hospital: hospitalNames[2], status: 'Taken'},
+        {date: '2024-11-13', medicine: 'Letrozole', hospital: hospitalNames[3], status: 'Not Taken'}
+    ];
+    // Restore the original, more detailed history panel (with table and clear records)
+    var mainCol = $('.col-md-9');
+    if (mainCol.length) {
+        mainCol.find('#patientDetails').remove();
+        var html = `
+        <div id="patientDetails">
+            <div class="row justify-content-center">
+                <div class="col-md-9">
+                    <div class="card shadow mb-2" style="border-radius: 16px; background: linear-gradient(90deg, #e3e9fc 60%, #f8fafc 100%); box-shadow: 0 2px 8px rgba(26,35,126,0.10);">
+                        <div class="card-body p-3">
+                            <h5 class="mb-3" style="font-size:1.3em; color:#1a237e; font-weight:700;">Medicine Records (Last 8 Months)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped mb-0" style="background:#fff; border-radius:12px; overflow:hidden;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Medicine</th>
+                                            <th>Hospital</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${medHistory.map(h => `
+                                            <tr>
+                                                <td><i class='fas fa-calendar-alt me-2'></i>${h.date}</td>
+                                                <td><i class='fas fa-capsules me-1'></i>${h.medicine}</td>
+                                                <td><i class='fas fa-hospital me-1'></i>${h.hospital}</td>
+                                                <td><span class='badge bg-${h.status==='Taken'?'success':'danger'}'>${h.status}</span></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 border-start">
+                    <h6 class="mb-2" style="font-size:1.1em;"><i class="fas fa-comment-dots"></i> Message Patient</h6>
+                    <form id="messageForm">
+                        <div class="mb-2">
+                            <textarea class="form-control" id="messageText" rows="8" style="font-size:1.15em; min-height:120px;" placeholder="Type your message..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" style="font-size:1.1em;"><i class="fas fa-paper-plane me-1"></i>Send Message</button>
+                    </form>
+                    <div id="messageSentAlert" class="alert alert-success mt-3 d-none" role="alert" style="font-size:1.1em;">Message sent and patient notified!</div>
+                </div>
+            </div>
+        </div>
+        `;
+        mainCol.append(html);
     }
-    $('#staffPatients').html(html);
 });
-// Patient click: show details and history
+    }
+    // Add Patient Button (move it further down to avoid overlapping last patient)
+    html += `<button id='addPatientBtn' class='btn btn-primary position-absolute start-0' style='bottom: -40px; left: 16px; z-index:10; border-radius:50px; box-shadow:0 2px 8px rgba(0,0,0,0.12); padding-left:18px; padding-right:18px;'><i class='fas fa-plus me-2'></i> Add Patient</button>`;
+    // Add Patient Modal (hidden, will show on click)
+    html += `
+        <div class='modal fade' id='addPatientModal' tabindex='-1' aria-labelledby='addPatientModalLabel' aria-hidden='true'>
+          <div class='modal-dialog'>
+            <div class='modal-content'>
+              <div class='modal-header'>
+                <h5 class='modal-title' id='addPatientModalLabel'>Add New Patient</h5>
+                <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+              </div>
+              <form id='addPatientForm'>
+                <div class='modal-body'>
+                  <div class='mb-3'><label class='form-label'>Name</label><input type='text' class='form-control' name='name' required></div>
+                  <div class='mb-3'><label class='form-label'>Address</label><input type='text' class='form-control' name='address' required></div>
+                  <div class='mb-3'><label class='form-label'>Phone Number</label><input type='tel' class='form-control' name='phone' required></div>
+                  <div class='mb-3'><label class='form-label'>Email</label><input type='email' class='form-control' name='email' required></div>
+                </div>
+                <div class='modal-footer'>
+                  <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Cancel</button>
+                  <button type='submit' class='btn btn-success'>Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+    `;
+    $('#staffPatients').html(html);
+    if(!$('#addPatientModal').length) {
+        $('body').append($('#addPatientModal'));
+    }
+});
+// 4. View button shows details, clicking elsewhere shows history
+$(document).on('click', '.view-patient-btn', function(e) {
+    e.stopPropagation();
+    var idx = $(this).data('patient-idx');
+    var staffName = $(this).data('staff-name');
+    var staff = null;
+    $('.staff-link').each(function() {
+        var s = $(this).data('staff');
+        if(s.name === staffName) staff = s;
+    });
+    var p = (staff && staff.patients && staff.patients[idx]) ? staff.patients[idx] : null;
+    // Try to get the name and email from the visible card row (always matches the displayed patient)
+    var card = $(this).closest('.card');
+    var name = (p && p.name) ? p.name : card.find('h6').text();
+    var age = (p && p.age) ? p.age : Math.floor(Math.random()*40+20);
+    var phone = (p && p.phone) ? p.phone : "+91-9" + Math.floor(Math.random()*1000000000).toString().padStart(9,'0');
+    // Email logic: if name is 'add', show 'add@gmail.com', else use name as email (e.g. abc@gmail.com)
+    var email = '';
+    if (name && name.trim().toLowerCase() === 'add') {
+        email = 'add@gmail.com';
+    } else if (name) {
+        email = name.trim().toLowerCase().replace(/\s+/g, '') + '@gmail.com';
+    } else {
+        email = '@gmail.com';
+    }
+    var html = `<div class='modal fade' id='patientDetailsModal' tabindex='-1' aria-labelledby='patientDetailsModalLabel' aria-hidden='true'>
+        <div class='modal-dialog modal-lg'>
+            <div class='modal-content'>
+                <div class='modal-header'>
+                    <h5 class='modal-title' id='patientDetailsModalLabel'>Patient Details</h5>
+                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                </div>
+                <div class='modal-body'>
+                    <ul class='list-group mb-3'>
+                        <li class='list-group-item'><strong>Name:</strong> ${name}</li>
+                        <li class='list-group-item'><strong>Age:</strong> ${age}</li>
+                        <li class='list-group-item'><strong>Phone:</strong> ${phone}</li>
+                        <li class='list-group-item'><strong>Email:</strong> ${email}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    $("body").append(html);
+    $('#patientDetailsModal').modal('show');
+    $('#patientDetailsModal').on('hidden.bs.modal', function() { $(this).remove(); });
+});
+// 5. Delete patient
+$(document).on('click', '.delete-patient-btn', function() {
+    var idx = $(this).data('patient-idx');
+    var staffName = $(this).data('staff-name');
+    var staff = null;
+    $('.staff-link').each(function() {
+        var s = $(this).data('staff');
+        if(s.name === staffName) staff = s;
+    });
+    if(staff && staff.patients && staff.patients[idx]) {
+        staff.patients.splice(idx, 1);
+        $('#patientDetailsModal').modal('hide');
+        // Refresh patient list
+        $('.staff-link').filter(function(){return $(this).find('h6').text()===staff.name;}).click();
+    }
+});
+
+// 2. Make the message box bigger in the history
 $(document).on('click', '.patient-link', function() {
     var patient = $(this).data('patient');
+    var name = patient && patient.name ? patient.name : "";
+    if (!name) {
+        name = patientNames[Math.floor(Math.random()*patientNames.length)];
+    }
+    var area = patient && patient.area ? patient.area : "";
+    var hospitalNames = [
+        'SDM Hospital (Dharwad)',
+        'KIMS Hospital (Hubli)',
+        'Balaji Hospital (Hubli)',
+        'Civil Hospital (Dharwad)'
+    ];
+    // Show the history and message box in the main dashboard area
+    var medHistory = [
+        {date: '2025-06-10', medicine: 'Tamoxifen', hospital: hospitalNames[0], status: 'Taken'},
+        {date: '2025-05-12', medicine: 'Letrozole', hospital: hospitalNames[1], status: 'Taken'},
+        {date: '2025-04-15', medicine: 'Imatinib', hospital: hospitalNames[2], status: 'Not Taken'},
+        {date: '2025-03-18', medicine: 'Tamoxifen', hospital: hospitalNames[3], status: 'Taken'}
+    ];
+    // Show in the main dashboard area (not in the modal)
+    // Always show the history and message box in the main content area (col-md-9)
+    // If #patientDetails is not visible, create it in the main content area
+    if ($('#patientDetails').length === 0) {
+        // If not present, add it to the main content area
+        var mainCol = $('.col-md-9');
+        if (mainCol.length) {
+            mainCol.append('<div id="patientDetails"></div>');
+        }
+    }
+    // Restore old code for history: only medicine history and message box, no patient details
     var html = `
-        <h4><i class="fas fa-user"></i> ${patient.name}</h4>
-        <p><strong>Area:</strong> ${patient.area}</p>
-        <h6>Monthly Medicine History</h6>
-        <ul class='list-group mb-2'>
-            ${patientHistory.map(h => `<li class='list-group-item d-flex justify-content-between align-items-center'>${h.month}<span class='badge bg-${h.status==='Taken'?'success':'danger'}'>${h.status}</span></li>`).join('')}
-        </ul>
-        <p><strong>Monthly Tablet:</strong> <span class="badge bg-${Math.random() > 0.5 ? 'success' : 'danger'}">${Math.random() > 0.5 ? 'Taken' : 'Not Taken'}</span></p>
-        <hr>
-        <p>More details can be fetched from the hospital database.</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow mb-2" style="border-radius: 16px; background: linear-gradient(90deg, #e3e9fc 60%, #f8fafc 100%); box-shadow: 0 2px 8px rgba(26,35,126,0.10);">
+                    <div class="card-body p-3">
+                        <h6 style="font-size:1.1em;">Monthly Medicine History</h6>
+                        <ul class='list-group mb-2' style="font-size:1em; border-radius:12px; overflow:hidden;">
+                            ${medHistory.map(h => `<li class='list-group-item d-flex justify-content-between align-items-center py-2' style='font-size:0.95em; background:rgba(255,255,255,0.95); border:none; border-bottom:1px solid #e0e7ef;'>
+                                <span><i class='fas fa-calendar-alt me-2'></i>${h.date}</span>
+                                <span><i class='fas fa-capsules me-1'></i>${h.medicine}</span>
+                                <span><i class='fas fa-hospital me-1'></i>${h.hospital}</span>
+                                <span class='badge bg-${h.status==='Taken'?'success':'danger'}'>${h.status}</span>
+                            </li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 border-start">
+                <h6 class="mb-2" style="font-size:1.1em;"><i class="fas fa-comment-dots"></i> Message Patient</h6>
+                <form id="messageForm">
+                    <div class="mb-2">
+                        <textarea class="form-control" id="messageText" rows="8" style="font-size:1.15em; min-height:120px;" placeholder="Type your message..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="font-size:1.1em;"><i class="fas fa-paper-plane me-1"></i>Send Message</button>
+                </form>
+                <div id="messageSentAlert" class="alert alert-success mt-3 d-none" role="alert" style="font-size:1.1em;">
+                    Message sent and patient notified!
+                </div>
+            </div>
+        </div>
     `;
     $('#patientDetails').html(html);
+});
+
+// Add Patient Button (bottom left for staff)
+$(document).on('click', '#addPatientBtn', function() {
+    $('#addPatientModal').modal('show');
+});
+// Add Patient Modal and Form logic
+$(document).on('submit', '#addPatientForm', function(e) {
+    e.preventDefault();
+    var form = $(this);
+    var data = {
+        name: form.find('[name="name"]').val(),
+        area: '',
+        address: form.find('[name="address"]').val(),
+        phone: form.find('[name="phone"]').val(),
+        email: form.find('[name="email"]').val()
+    };
+    if(window.lastStaffClicked) {
+        if(!window.lastStaffClicked.patients) window.lastStaffClicked.patients = [];
+        data.area = window.lastStaffClicked.area;
+        window.lastStaffClicked.patients.push(data);
+    }
+    $('#addPatientModal').modal('hide');
+    // Refresh patient list
+    $('.staff-link').filter(function(){return $(this).find('h6').text()===window.lastStaffClicked.name;}).click();
+});
+
+// Notification logic (demo)
+let notifications = [
+    {type: 'message', from: 'Hospital', text: 'Patient Ravi needs urgent medicine update.', time: '2 min ago'},
+    {type: 'alert', from: 'NGO', text: 'Monthly report is due tomorrow.', time: '1 hr ago'}
+];
+function renderNotifications() {
+    var list = '';
+    if(notifications.length === 0) {
+        list = '<li class="text-center text-muted py-2">No notifications</li>';
+        $('#notificationCount').hide();
+    } else {
+        notifications.forEach(n => {
+            list += `<li class='dropdown-item d-flex align-items-start gap-2'>
+                <span class='me-2'><i class='${n.type==='message'?'fas fa-envelope text-primary':'fas fa-exclamation-circle text-warning'}'></i></span>
+                <div>
+                    <div><strong>${n.from}:</strong> ${n.text}</div>
+                    <small class='text-muted'>${n.time}</small>
+                </div>
+            </li>`;
+        });
+        $('#notificationCount').text(notifications.length).show();
+    }
+    $('#notificationList').html(list);
+}
+renderNotifications();
+
+// Message form submit (patient modal)
+$(document).on('submit', '#messageForm', function(e) {
+    e.preventDefault();
+    let msg = $('#messageText').val();
+    if(msg.trim().length === 0) return;
+    notifications.unshift({type:'message', from:'NGO Staff', text:msg, time:'Just now'});
+    renderNotifications();
+    $('#messageText').val('');
+    $('#messageSentAlert').removeClass('d-none');
+    setTimeout(()=>$('#messageSentAlert').addClass('d-none'), 2000);
 });
 // Medicine click: show medicine list
 $(document).on('click', '.medicine-link', function() {
@@ -177,5 +531,61 @@ $(document).on('click', '.medicine-link', function() {
     html += '</ul>';
     $('#medicineList').html(html);
 });
+
+// 7. Show each medicine as a separate card in the left sidebar
+$(document).ready(function() {
+    var medDict = {
+        'Cancer': ['Tamoxifen', 'Letrozole', 'Imatinib'],
+        'TB': ['Isoniazid', 'Rifampicin', 'Ethambutol'],
+        'AIDS': ['Zidovudine', 'Lamivudine', 'Efavirenz'],
+        'HIV': ['Tenofovir', 'Emtricitabine', 'Dolutegravir']
+    };
+    var medHtml = '';
+    Object.entries(medDict).forEach(([disease, meds]) => {
+        meds.forEach(med => {
+            medHtml += `<div class='card mb-2 medicine-card' style='border-radius:14px; cursor:pointer;' data-bs-toggle='modal' data-bs-target='#medicineModal' data-medicine='${med}' data-disease='${disease}'>
+                <div class='card-body py-2 px-3 d-flex align-items-center justify-content-between'>
+                    <span><i class='fas fa-capsules me-2'></i> <strong>${med}</strong> <span class='badge bg-info ms-2'>${disease}</span></span>
+                    <i class='fas fa-chevron-right'></i>
+                </div>
+            </div>`;
+        });
+    });
+    $(".card.shadow.mb-4 ul.list-group").parent().html(medHtml);
+});
+// 8. Medicine click: show stock and history
+$(document).on('click', '.medicine-card', function() {
+    var med = $(this).data('medicine');
+    var disease = $(this).data('disease');
+    // Demo: random stock and history
+    var stock = Math.floor(Math.random()*50+10);
+    var given = Math.floor(Math.random()*30+5);
+    var medHistory = [
+        {date:'2025-06-10', patient:'Ravi', qty:2},
+        {date:'2025-05-12', patient:'Sunita', qty:1},
+        {date:'2025-04-15', patient:'Manoj', qty:1}
+    ];
+    var html = `<h5>${med} (${disease})</h5>
+        <p><strong>Stock Left:</strong> <span class='badge bg-success'>${stock}</span></p>
+        <p><strong>Given to Patients:</strong> <span class='badge bg-primary'>${given}</span></p>
+        <h6>Previous History</h6>
+        <ul class='list-group mb-2'>
+            ${medHistory.map(h => `<li class='list-group-item d-flex justify-content-between align-items-center'>${h.date} - ${h.patient}<span class='badge bg-secondary'>${h.qty} strips</span></li>`).join('')}
+        </ul>`;
+    $('#medicineList').html(html);
+});
+
+// Remove Profile and Assistance buttons from top bar
+$('.btn-outline-primary, .btn-outline-success').remove();
+
+// Hide the Add Patient button that appears below staff members (if any)
+$(document).ready(function() {
+  $("#addPatientBtn").closest("button").hide();
+  // Remove NGO address card above medicine list, keep only the very top banner
+  $(".card.mb-3.shadow-sm").hide();
+});
+// Make history and message box bigger and more creative
+// (Already handled in previous patch: font-size, padding, rows=6, etc.)
+
 </script>
 {% endblock %}
